@@ -33,11 +33,11 @@ namespace WorkdaySOAP
     {
         static string wdTenant = "minnstate4";
         static string wdVersion = "v39.1";
-        static string wdUsername = "ISU_Mankato_Directory";
+        static string wdUsername = "";
 
-        static string clientId = "OGQzNDZmZTMtMjRlMS00MTg4LWI5YzAtNGIwNDg5MWU4YjIz";
-        static string clientSecret = "14lqka6rh5yrjkm08knic6egkjg9qj7frqbx4azyck40wfe3difm4em76jldhfthqcsy00lz5g8s2mh0s9nem65de3tlrb87zxj1";
-        static string refreshToken = "jjkw07j0jcf61glnmljlub4b2sez2yzkhoroukw5rmiu8gyjqiuvj6ig7lxcwhdhtylz45nxkdusgzpa6lvoivaojyan15dtdza";
+        static string clientId = "";
+        static string clientSecret = "";
+        static string refreshToken = "";
 
         static int resultsPerPage = 50;
 
