@@ -42,7 +42,7 @@ namespace WorkdaySOAP
         static int resultsPerPage = 50;
 
         
-        static void Main(string[] args)
+       static void Main(string[] args)
         {
             // Location on local where files are saved
             string pathFile = @"C:\WorkdayData\";
@@ -50,8 +50,10 @@ namespace WorkdaySOAP
             AccessToken token = GetToken().Result;
             Console.WriteLine(String.Format("Access Token: {0}", token.access_token));
             var p = new Program();
-            //Only getting pages 1 and 2 of the Workers data
-            for (int page = 1; page <= 2; page++)
+            bool getPages = true;
+            //Loop until all pages are downloaded and saved
+            int page = 1;
+            while (getPages)
             {
                 Guid guid = Guid.NewGuid();
                 String results = p.SOAPManual(token.access_token, guid, page);
@@ -59,11 +61,29 @@ namespace WorkdaySOAP
                 Console.WriteLine(String.Format("page: {0}", page));
                 Console.WriteLine(String.Format("Request ID: {0}", guid));
                 Console.WriteLine(String.Format("Saved file to: {0}", pathFile + $"GetWorkers_{guid}.xml\n"));
+                
+                //Save files
                 FileStream outputFileStream = new FileStream(pathFile + $"GetWorkers_{guid}.xml", FileMode.Append, FileAccess.Write);
                 StreamWriter writer = new StreamWriter(outputFileStream);
                 writer.WriteLine(p.FormatXml(results));
                 writer.Close();
                 outputFileStream.Close();
+
+                //Get total pages of results
+                int totalPages = p.ReturnTotalPages(results);
+
+                Console.WriteLine("***************");
+                // Print the extracted data to the console
+                Console.WriteLine(totalPages);
+                Console.WriteLine("***************");
+
+                //End loop if at end of results
+                if (page == totalPages)
+                {
+                    getPages = false;
+                }
+                Console.WriteLine(getPages);
+                page++;
             }
         }
 
@@ -79,6 +99,19 @@ namespace WorkdaySOAP
                 Console.WriteLine("Error in parsing xml");
                 return xml;
             }
+        }
+
+        int ReturnTotalPages(string results)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(results);
+            XmlNamespaceManager nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            nsMgr.AddNamespace("env", "http://schemas.xmlsoap.org/soap/envelope/");
+            nsMgr.AddNamespace("wd", "urn:com.workday/bsvc");
+
+            // Find the node you want to extract data from using XPath with the namespace manager
+            XmlNode node = xmlDoc.SelectSingleNode("//wd:Total_Pages", nsMgr);
+            return Int32.Parse(node.InnerText);
         }
 
         static async Task<AccessToken> GetToken()
